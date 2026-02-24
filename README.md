@@ -74,22 +74,34 @@ plugins=[{"type": "local", "path": "./arize-claude-code-plugin/plugins/claude-co
 // TypeScript
 plugins: [{ type: "local", path: "./arize-claude-code-plugin/plugins/claude-code-tracing" }]
 ```
+Make sure to also pass in the path to the `settings.json` file. 
+```python
+# Python
+settings="./settings.local.json"
+```
+
+```typescript
+// TypeScript
+settingSources: ["local"] // only .claude/settings.local.json
+```
 
 #### Full example
 
 **Python:**
 ```python
 import asyncio
-from claude_agent_sdk import query, ClaudeAgentOptions
+from claude_agent_sdk import ClaudeAgentOptions, ClaudeSDKClient
+
 
 async def main():
-    async for message in query(
-        prompt="Your prompt here",
-        options=ClaudeAgentOptions(
-            plugins=[{"type": "local", "path": "./arize-claude-code-plugin/plugins/claude-code-tracing"}],
-        ),
-    ):
-        print(message)
+    options = ClaudeAgentOptions(
+        plugins=[{"type": "local", "path": "./arize-claude-code-plugin/plugins/claude-code-tracing"}],
+        settings="./settings.local.json"
+    )
+    async with ClaudeSDKClient(options=options) as client:
+        await client.query("PROMPT_GOES_HERE")
+        async for message in client.receive_response():
+            print(message)
 
 asyncio.run(main())
 ```
@@ -101,7 +113,8 @@ import { query } from "@anthropic-ai/claude-agent-sdk";
 for await (const message of query({
   prompt: "Your prompt here",
   options: {
-    plugins: [{ type: "local", path: "./arize-claude-code-plugin/plugins/claude-code-tracing" }]
+    plugins: [{ type: "local", path: "./arize-claude-code-plugin/plugins/claude-code-tracing" }],
+    settingSources: ["local"]
   }
 })) {
   console.log(message);
