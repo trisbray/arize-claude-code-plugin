@@ -86,10 +86,10 @@ attrs=$(jq -nc \
   --arg output "$subagent_output" \
   --arg model "$model" \
   --arg uid "$user_id" \
-  --argjson in_tok "$in_tokens" --argjson out_tok "$out_tokens" \
+  --argjson out_tok "$out_tokens" \
   --argjson cache_read_tok "$cache_read_tokens" --argjson cache_creation_tok "$cache_creation_tokens" \
   --argjson prompt_tok "$prompt_tokens" --argjson total_tok "$total_tokens" \
-  '{"session.id":$sid,"openinference.span.kind":"chain","subagent.id":$agent_id,"subagent.type":$agent_type,"llm.model_name":$model,"llm.token_count.prompt":$prompt_tok,"llm.token_count.completion":$out_tok,"llm.token_count.total":$total_tok,"llm.token_count.prompt_details.input":$in_tok,"llm.token_count.prompt_details.cache_read":$cache_read_tok,"llm.token_count.prompt_details.cache_write":$cache_creation_tok} + (if $output != "" then {"output.value":$output} else {} end) + (if $uid != "" then {"user.id":$uid} else {} end)')
+  '{"session.id":$sid,"openinference.span.kind":"chain","subagent.id":$agent_id,"subagent.type":$agent_type,"llm.model_name":$model,"llm.token_count.prompt":$prompt_tok,"llm.token_count.completion":$out_tok,"llm.token_count.total":$total_tok,"llm.token_count.prompt_details.cache_read":$cache_read_tok,"llm.token_count.prompt_details.cache_write":$cache_creation_tok} + (if $output != "" then {"output.value":$output} else {} end) + (if $uid != "" then {"user.id":$uid} else {} end)')
 
 span=$(build_span "Subagent: $agent_type" "CHAIN" "$span_id" "$trace_id" "$parent" "$start_time" "$end_time" "$attrs")
 send_span "$span" || true
